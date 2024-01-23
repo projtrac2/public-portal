@@ -37,6 +37,19 @@
             <div class="page-wrapper">
               @include('layouts.header')
               <div class="page-content">
+
+                @if (Session::has('success'))
+                    <div class="alert alert-success" role="alert" id="success">
+                        {{Session::get('success')}}
+                    </div>
+                @endif
+
+                @if (Session::has('unsuccess'))
+                    <div class="alert alert-danger" role="alert" id="danger">
+                        {{Session::get('unsuccess')}}
+                    </div> 
+                @endif
+            
                 @include('welcome_components.search_area')
                 @include('welcome_components.blocks')
                 @include('welcome_components.budget_chart')

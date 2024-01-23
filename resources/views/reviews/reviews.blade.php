@@ -40,6 +40,16 @@
               @include('layouts.header')
               <div class="page-content">
                 <div class="container">
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
                     <div class="row">
                         <div class="col-md-6 p-5 text-center">
                             <img src="{{asset('images/rev2.svg')}}" alt="review" style="height: 40vh;"  srcset="">
@@ -58,18 +68,23 @@
                             
                         </div>
                         <div class="col-md-6 pt-4">
-                            <form class="forms-sample">
+                            <form class="forms-sample" method="POST" action="{{route('save-feedback')}}">
+                                @csrf
+                                <input type="hidden" name="project_id" value="{{$project->projid}}">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="exampleInputUsername1" class="form-label">Full name</label>
-                                            <input type="text" class="form-control" id="exampleInputUsername1" autocomplete="off" placeholder="Full name" style="background-color: #bfdbfe">
+                                            <input name="full_name" type="text" class="form-control" id="full_name" autocomplete="off" placeholder="Full name" style="background-color: #bfdbfe">
+                                            <span class="text-danger" id="full_name_error"></span>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="exampleInputEmail1" class="form-label">Email address</label>
-                                            <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Email" style="background-color: #bfdbfe">
+                                            <input name="email_address" type="text" class="form-control" id="email_address" placeholder="Email" style="background-color: #bfdbfe">
+                                            <span class="text-danger" id="email_address_error"></span>
+
                                         </div>
                                     </div>
                                 </div>
@@ -78,30 +93,32 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="exampleInputPassword1" class="form-label">Phone number</label>
-                                            <input type="text" class="form-control" id="exampleInputPassword1" style="background-color: #bfdbfe" autocomplete="off" placeholder="Phone">
+                                            <input name="phone_number" type="text" class="form-control" id="phone_number" style="background-color: #bfdbfe" autocomplete="off" placeholder="Phone">
+                                            <span class="text-danger" id="phone_number_error"></span>
+                                        
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label for="exampleFormControlSelect1" class="form-label">Feedback type</label>
-                                            <select class="form-select" id="exampleFormControlSelect1" style="background-color: #bfdbfe">
+                                            <select name="feedback_type" class="form-select" id="feedback_type" style="background-color: #bfdbfe">
                                               <option selected disabled>Select...</option>
                                               <option>Complaint</option>
                                               <option>Compliment</option>
                                             </select>
+                                            <span class="text-danger" id="feedback_type_error"></span>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div class="mb-3">
                                     <label for="exampleFormControlTextarea1" class="form-label">Message</label>
-                                    <textarea class="form-control" style="background-color: #bfdbfe" id="exampleFormControlTextarea1" rows="5"></textarea>
+                                    <textarea name="message" class="form-control" style="background-color: #bfdbfe" id="message" rows="5"></textarea>
+                                    <span id="message_error" class="text-danger"></span>
                                 </div>
-                                
                                
-                                <button type="submit" class="btn me-2 text-white" style="background-color: #1d4ed8">Submit</button>
+                                <button type="submit" id="submit-btn" class="btn me-2 text-white" style="background-color: #1d4ed8">Submit</button>
                             </form>
-                      
                         </div>
                     </div>
                     <div class="d-flex flex-row justify-content-center" style="margin-top: 3%">
@@ -137,6 +154,52 @@
     <script src="{{ asset('assets/plugins/datatables-net/jquery.dataTables.js') }}"></script>
     <script src="{{ asset('assets/plugins/datatables-net-bs5/dataTables.bootstrap5.js') }}"></script>
     <script src="{{ asset('assets/js/data-table.js') }}"></script>
-    
+    <script>
+        $(function() {
+            $('#submit-btn').on('click', function(e) {
+                if (!$('#full_name').val()) {
+                    $('#full_name_error').text('field required');
+                    e.preventDefault();
+                    return;
+                } else {
+                    $('#full_name_error').text('');
+                }
+
+                if (!$('#email_address').val()) {
+                    $('#email_address_error').text('field required');
+                    e.preventDefault();
+                    return;
+                } else {
+                    $('#email_address_error').text('');
+                }
+
+                if (!$('#phone_number').val()) {
+                    $('#phone_number_error').text('field required');
+                    e.preventDefault();
+                    return;
+                } else {
+                    $('#phone_number_error').text('');
+                }
+
+
+                if($('#feedback_type').find(':selected').text() == 'Select...'){
+                    $('#feedback_type_error').text('field required');
+                    e.preventDefault();
+                    $('#feedback_type').focus();
+                    return;
+                } else {
+                    $('#feedback_type_error').text('');
+                }
+
+                if (!$('#message').val()) {
+                    $('#message_error').text('field required');
+                    e.preventDefault();
+                    return;
+                } else {
+                    $('#message_error').text('');
+                }
+            })
+        })
+    </script>
     </body>
 </html>

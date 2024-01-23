@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Feedback;
 use App\Models\FinancialYear;
 use App\Models\Location;
 use App\Models\Program;
@@ -66,26 +67,60 @@ class ProjectController extends Controller
         $subCounties = Location::where('parent', '=', null)->get();
         $fYears = FinancialYear::all();
         //$programs = Program::with('projects')->where([['projstatus','!=', 1], ['projstatus', '!=', 2]])->get();
-        // $projects = Project::with('program')->where([['projstatus','!=', 1], ['projstatus', '!=', 2]])->get();
+        $projects = Project::with('program')->where([['projstatus','>', 0], ['projstatus', '!=', 3]])->get();
         // foreach($projects as $project){
         //     $department = $project->program->section;
         //     $year = $project->financialYear->name;
         //     $status = $project->status;
         // }
-        // dd($projects);
-        return view('projects.view', compact('subCounties', 'fYears'));
+        return view('projects.view', compact('subCounties', 'fYears','projects'));
+    }
+
+    public function filterProject(Request $request)  
+    {
+        $projects = Project::with('program')->where([['projstatus','>', 0], ['projstatus', '!=', 3]])->get();
+        if ($request->from != 'select...' && $request->to == 'select...') {
+            $projects = Project::where('projfscyear', '>=', $request->from)->get();
+        }
+
+        if ($request->to != 'select...' && $request->from == 'select...') {
+            $projects = Project::where('projfscyear', '<=', $request->to)->get();
+        }
+
+        if ($request->to != 'select...' && $request->from != 'select...') {
+            $projects = Project::where([['projfscyear', '>=', $request->from], ['projfscyear', '<=', $request->to]])->get();
+        }
+
+        if ($request->sub_county_id != 'select...' && $request->ward_id != 'select...') {
+            $projects = Project::where([['projcommunity', 'like', $request->sub_county_id], ['projlga', 'like', $request->ward_id]])->get();
+        }
+
+        foreach ($projects as $key => $project) {
+            $project->link = "<a href='/project/$project->projid')}}><img src='{{asset('images/folder.svg')}} alt='' srcset=''></a>";
+            if ($project->projstatus !== 0) {
+                $project->fyear = $project->financialYear->name;
+                if ($project->program->section) {
+                    $project->section = $project->program->section ?? null;  
+                } else {
+                    $project->section = null;
+                }
+                $project->status;
+                
+            } else {
+                $project->fyear = 'n/a';
+                $project->status;
+            }
+
+        }
+
+        return response($projects);
     }
 
     public function query(Request $request)
     {
         // remeber to take projects that the id is not supposed to be used
         $projects = Project::all();
-        // if (!empty($from)) {
-        //     $projects = Project::where([['projfscyear', '>=', $from]])->get();
-        //     if (!empty($to)) {
-        //         $projects = Project::where([['projfscyear', '>=', $from], ['projfscyear', '>=', $to], []])->get();
-        //     }
-        // }
+        
 
         // remeber to take projects that the id is not supposed to be used
         if ($request->from != 'select...' && $request->to == 'select...') {
@@ -149,12 +184,65 @@ class ProjectController extends Controller
         $wards = Location::where('parent', '=', $request->sub_county_id)->get(['id', 'state']);
         return response($wards);
     }
+
+    /**
+     * @param Project $id
+     */
+    public function show($id) 
+    {
+        $project = Project::with('program')->find($id);
+        if (!$project) {
+           return redirect()->back()->with('error', 'Project details not found');
+        }
+        return view('projects.show', compact('project'));
+    }
+
+    /**
+     * 
+     */
+    public function getFeedback ($id) 
+    {
+        $project = Project::find($id);
+        return view('reviews.reviews', compact('project'));
+    }
+
+    /**
+     * 
+     */
+    public function saveFeedBack(Request $request) 
+    {
+        $request->validate([
+            'full_name' => 'required',
+            'email_address' => 'required|email',
+            'phone_number' => 'required',
+            'feedback_type' => 'required',
+            'message' => 'required',
+        ]);
+
+        $feedback = new Feedback();
+        $feedback->full_name = $request->full_name;
+        $feedback->email = $request->email_address;
+        $feedback->phone_number = $request->phone_number;
+        $feedback->feedback_type = $request->feedback_type;
+        $feedback->message = $request->message;
+        $feedback->project_id = $request->project_id;
+        if ($feedback->save()) {
+            return redirect()->route('home')->with('success','Thankyou for your feedback');
+        }
+        dd('p');
+        return redirect()->back()->with('unsuccess','System error please try again');
+    }
 }
 
 
 
 
-
+// if (!empty($from)) {
+        //     $projects = Project::where([['projfscyear', '>=', $from]])->get();
+        //     if (!empty($to)) {
+        //         $projects = Project::where([['projfscyear', '>=', $from], ['projfscyear', '>=', $to], []])->get();
+        //     }
+        // }
 
 
  // $projects = Program::whereHas('projects', function($query) use ($fYear) {

@@ -2,13 +2,12 @@
     <img src="{{asset('images/flag2.png')}}" alt="" srcset="" height="100vh">
 </div> --}}
 <div class="row">
-    
     <div class="col-md-8" style="padding-right: 50px; border-right: 1px solid #cbd5e1">
         <div data-bs-spy="scroll" data-bs-target="#navbar-example3" data-bs-offset="0">
             <div id="item-1" class="card mb-3" style="background-color: #fecaca; border: 1px solid #cbd5e1;">
                 <div class="card-body">
                     <h5 style="margin-bottom: 10px;">Project Summary</h5>
-                    <p>Project Summary is key to all the viewers since they are able to view everything as needed.</p>
+                    <p>{{$project->projdesc}}</p>
                 </div>
             </div>
 
@@ -21,11 +20,11 @@
                                 <tbody>
                                     <tr>
                                         <td>Project Name:</td>
-                                        <td style="padding-left: 10px;  font-weight: bold">Project one</td>
+                                        <td style="padding-left: 10px;  font-weight: bold">{{$project->projname}}</td>
                                     </tr>
                                     <tr>
                                         <td style="padding-top: 10px;">Project Cost:</td>
-                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">ksh 50,000,000</td>
+                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">ksh {{number_format($project->projcost)}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -37,11 +36,11 @@
                                    
                                     <tr>
                                         <td style="padding-top: 10px;">Start Date:</td>
-                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">January 1, 2021</td>
+                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">{{$project->projstartdate}}</td>
                                     </tr>
                                     <tr>
                                         <td style="padding-top: 10px;">End Date:</td>
-                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">January 1, 2021</td>
+                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">{{$project->projenddate}}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -60,7 +59,15 @@
                                 <tbody>
                                     <tr>
                                         <td>Sub-County:</td>
-                                        <td style="padding-left: 10px;  font-weight: bold">Sub County</td>
+                                        <?php
+                                            $subCountiesId = explode(',',$project->projcommunity);
+                                        ?>
+                                        <td style="padding-left: 10px;  font-weight: bold d-flex gap-2">
+                                            @foreach ($subCountiesId as $id)
+                                                <?php $subCounty = App\Models\Location::find($id) ?>
+                                                <p>{{$subCounty->state}}</p>
+                                            @endforeach
+                                        </td>
                                     </tr>
                                     
                                 </tbody>
@@ -72,7 +79,15 @@
                                 <tbody>
                                     <tr>
                                         <td style="padding-top: 10px;">Ward:</td>
-                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">Ward</td>
+                                        <?php
+                                            $wardIds = explode(',',$project->projlga);
+                                        ?>
+                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold d-flex gap-2">
+                                            @foreach ($wardIds as $id)
+                                                <?php $ward = App\Models\Location::find($id) ?>
+                                                <p>{{$ward->state}}</p>
+                                            @endforeach
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -91,11 +106,18 @@
                                 <tbody>
                                     <tr>
                                         <td>Sector:</td>
-                                        <td style="padding-left: 10px;  font-weight: bold">Sub County</td>
+                                        <td style="padding-left: 10px;  font-weight: bold">{{$project->program->section->sector}}</td>
                                     </tr>
                                     <tr>
+                                        <?php 
+                                            $dept = App\Models\Section::where('stid', '=', $project->program->projdept)->first();
+                                        ?>
                                         <td>Department:</td>
-                                        <td style="padding-left: 10px;  font-weight: bold">Sub County</td>
+                                        @if ($dept)
+                                            <td style="padding-left: 10px;  font-weight: bold">{{$dept->sector}}</td>
+                                        @else
+                                            <td style="padding-left: 10px;  font-weight: bold"></td>
+                                        @endif
                                     </tr>
                                 </tbody>
                             </table>
@@ -106,11 +128,11 @@
                                 <tbody>
                                     <tr>
                                         <td style="padding-top: 10px;">Status:</td>
-                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">Ward</td>
+                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">{{$project->status->statusname}}</td>
                                     </tr>
                                     <tr>
                                         <td style="padding-top: 10px;">Financial Year:</td>
-                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">Ward</td>
+                                        <td style="padding-left: 10px; padding-top: 10px; font-weight: bold">{{$project->financialYear->year}}</td>
                                     </tr>
                                 </tbody>
                             </table>

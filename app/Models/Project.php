@@ -11,30 +11,25 @@ class Project extends Model
 
     protected $table = 'tbl_projects';
 
+    protected $primaryKey = 'projid';
     /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        '',
-        '',
-        '',
-    ];
-
 
     public function program()
     {
-        return $this->belongsTo(Program::class, 'program_id', 'id');
+        return $this->belongsTo(Program::class, 'progid', 'progid');
     }
 
     public function financialYear()
     {
-        return $this->belongsTo(FinancialYear::class, 'projyear');
+        return $this->belongsTo(FinancialYear::class, 'projfscyear');
     }
 
     public function status()
     {
-        return $this->belongsTo(Status::class, 'projstatus', 'id');
+        return $this->belongsTo(Status::class, 'projstatus', 'statusid');
     }
 }

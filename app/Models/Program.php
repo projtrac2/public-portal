@@ -13,7 +13,7 @@ class Program extends Model
 
     public function section()
     {
-        return $this->belongsTo(Section::class, 'dept', 'id');
+        return $this->belongsTo(Section::class, 'projdept', 'stid');
     }
 
     public function projects()

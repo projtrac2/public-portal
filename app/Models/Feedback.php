@@ -9,7 +9,7 @@ class Feedback extends Model
 {
     use HasFactory;
 
-    protected $table = 'tbl_status';
+    protected $table = 'tbl_feedback';
 
     /**
  * The attributes that are mass assignable.

@@ -9,7 +9,7 @@ class Section extends Model
 {
     use HasFactory;
 
-    protected $table = 'tbl_status';
+    protected $table = 'tbl_sectors';
 
     /**
      * The attributes that are mass assignable.

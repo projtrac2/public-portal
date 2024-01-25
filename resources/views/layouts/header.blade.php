@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg" style="background-color: #dbeafe">
+<nav class="navbar navbar-expand-lg" style="background-color: #03A9F4 !important">
   <a class="navbar-brand" href="#">
     <img src="{{asset('images/m-bg.png')}}" alt="logo" height="50">
   </a>

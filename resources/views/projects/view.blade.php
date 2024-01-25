@@ -11,6 +11,8 @@
         <title>NobleUI - Laravel Admin Dashboard Template</title>
 
         <!-- Fonts -->
+        <script src="https://kit.fontawesome.com/6557f5a19c.js" crossorigin="anonymous"></script>
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -29,6 +31,16 @@
             .page-wrapper {
                 background-image: url("{{asset('images/flag1.png')}}") !important;
             }
+            .legal {
+                bottom: 0;
+                width: 100%;
+                background-color: #03A9F4;
+                border-top: 1px solid #eee;
+                padding: 5px;
+                overflow: hidden;
+                color: black;
+                display: flex;
+            }
         </style>
     </head>
     <body class="antialiased">
@@ -40,6 +52,14 @@
               <div class="page-content">
                 @include('welcome_components.search_area')
                 @include('projects.projects_components.table')
+              </div>
+              <div class="legal">
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 copyright">
+                    ProjTrac M&amp;E - Your Best Result-Based Monitoring &amp; Evaluation System.
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 version" align="right">
+                    Copyright @ 2017 -2024. ProjTrac Systems Ltd.
+                </div>
               </div>
             </div>
         </div>
@@ -55,28 +75,126 @@
         <script src="{{ asset('assets/js/template.js') }}"></script>
         <script src="{{ asset('assets/plugins/datatables-net/jquery.dataTables.js') }}"></script>
         <script src="{{ asset('assets/plugins/datatables-net-bs5/dataTables.bootstrap5.js') }}"></script>
-        <script src="{{ asset('assets/js/data-table.js') }}"></script>
+        {{-- <script src="{{ asset('assets/js/data-table.js') }}"></script> --}}
         <script async>
             $(function () {
+                $('#reset-btn').on('click', () => {
+                    location.reload();
+                });
+                let table;
+                $.ajax({
+                    type: "GET",
+                    url: "/api/all-projects",
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    error: function(data){
+                        console.log(data);
+                    },
+                    success: function (message) {
+                        console.log(message);
+                        let t = 1;
+                        for (let i = 0; i < message.length; i++) {
+                            let status = '';
+                            let financialYear = '';
+                            let sector = '';
+                            if (message[i].status != null) {
+                                console.log(message[i].status.statusname);
+                                    status = message[i].status.statusname;
+                            }
+
+                            if (message[i].financial_year != null) {
+                                console.log(message[i].status.statusname);
+                                financialYear = message[i].financial_year.year;
+                            } 
+
+                            if (message[i].section != null) {
+                                sector = message[i].section.sector;
+                            } 
+                            let data = `
+                                <tr>
+                                    <td>${t}</td>
+                                    <td>${message[i].projname}</td>
+                                    <td>${sector}</td>
+                                    <td>${message[i].projcost}</td>
+                                    <td>${financialYear}</td>
+                                    <td>${status}</td>
+                                    <td>
+                                        <div class="d-flex gap-3">
+                                            ${message[i].link}
+                                            ${message[i].link2}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+                            $('#proj-table').append(data);
+                            t++;
+                        }
+
+                        table = $('#dataTableExample').DataTable({
+                            "aLengthMenu": [
+                                [10, 30, 50, -1],
+                                [10, 30, 50, "All"]
+                            ],
+                            "iDisplayLength": 10,
+                            "language": {
+                                search: ""
+                            }
+                            });
+                        $('#dataTableExample').each(function() {
+                            var datatable = $(this);
+                            // SEARCH - Add the placeholder for Search and Turn this into in-line form control
+                            var search_input = datatable.closest('.dataTables_wrapper').find('div[id$=_filter] input');
+                            search_input.attr('placeholder', 'Search');
+                            search_input.removeClass('form-control-sm');
+                            // LENGTH - Inline-Form control
+                            var length_sel = datatable.closest('.dataTables_wrapper').find('div[id$=_length] select');
+                            length_sel.removeClass('form-control-sm');
+                        });
+                    }
+                });
+
+                $.ajax({
+                    type: "GET",
+                    url: "/api/sub-counties-financial-years",
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    error: function(data){
+                        console.log(data);
+                    },
+                    success: function (response) {
+                        for (let i = 0; i < response.fYears.length; i++) {
+                            let option = `
+                                <option value="${response.fYears[i].id}">${response.fYears[i].year}</option>
+                            `;
+                            $('#from').append(option);
+                            $('#to').append(option);
+                        }
+
+                        for (let i = 0; i < response.subCounties.length; i++) {
+                            let option = `
+                                <option value="${response.subCounties[i].id}">${response.subCounties[i].state}</option>
+                            `;
+                            $('#subCounty').append(option);
+                        }
+                    }
+                });
+
                 $('#subCounty').on('change', getWards);
                 function getWards() {
                     let subCountyId = $('.subCounty').find(":selected").val();
                     console.log(subCountyId);
-                    let data = new FormData();
-                    data.append('_token', '{{csrf_token()}}');
-                    data.append('sub_county_id', subCountyId);
                     $.ajax({
-                        type: "POST",
-                        url: "{{route('get-wards')}}",
+                        type: "GET",
+                        url: "/api/get-wards/"+subCountyId,
                         processData: false,
                         contentType: false,
                         cache: false,
-                        data: data,
                         error: function(data){
                             console.log(data);
                         },
                         success: function (message) {
-                            console.log(message);
                             $('#ward').children().remove();
                             $('#ward').append('<option>Select...</option>');
                             for (let i = 0; i < message.length; i++) {
@@ -87,22 +205,26 @@
                     });
                 }
 
-                $('#filter-btn').on('click', filterProjects);
+                //$('#filter-btn').on('click', filterProjects);
+                $('#from').on('change', filterProjects);
+                $('#to').on('change', filterProjects);
+                $('#subCounty').on('change', filterProjects);
+                $('#ward').on('change', filterProjects);
                 function filterProjects() {
                     let subCountyId = $('.subCounty').find(":selected").val();
-                    let wardId = $('.ward').find(":selected").val();
-                    let from = $('.from').find(":selected").val();
-                    let to = $('.to').find(":selected").val();
+                    let wardId = $('#ward').find(":selected").val();
+                    let from = $('#from').find(":selected").val();
+                    let to = $('#to').find(":selected").val();
 
                     let data = new FormData();
                     data.append('_token', '{{csrf_token()}}');
                     data.append('sub_county_id', subCountyId);
                     data.append('ward_id', wardId);
                     data.append('from', from);
-                    data.append('to', from);
+                    data.append('to', to);
                     $.ajax({
                         type: "POST",
-                        url: "{{route('filter-projects')}}",
+                        url: "/api/all-projects/filter",
                         processData: false,
                         contentType: false,
                         cache: false,
@@ -114,47 +236,71 @@
                             console.log(message);
                             $('#proj-table').children().remove();
                             let t = 1;
-                            for (let i = 0; i < message.length; i++) {
+                            $('#dataTableExample').DataTable().clear();
+                            $('#dataTableExample').DataTable().destroy();
+                            for (let p = 0; p < message.length; p++) {
+                                console.log(p);
                                 let status = '';
                                 let financialYear = '';
                                 let sector = '';
-                                if (message[i].status != null) {
-                                    console.log(message[i].status.statusname);
-                                     status = message[i].status.statusname;
+                                if (message[p].status != null) {
+                                    console.log(message[p].status.statusname);
+                                     status = message[p].status.statusname;
                                 }
 
-                                if (message[i].financial_year != null) {
-                                    console.log(message[i].status.statusname);
-                                    financialYear = message[i].financial_year.year;
+                                if (message[p].financial_year != null) {
+                                    console.log(message[p].status.statusname);
+                                    financialYear = message[p].financial_year.year;
                                 } 
 
-                                if (message[i].section != null) {
-                                    sector = message[i].section.sector;
+                                if (message[p].section != null) {
+                                    sector = message[p].section.sector;
                                 } 
 
-                                var msg = message[i].projid;
-                                var link = "<a href={{route('project-show', "message[i].projid")}}><img src='{{asset('images/folder.svg')}} alt='' srcset=''></a>";
+                                var msg = message[p].projid;
+                                var link = "<a href={{route('project-show', "message[p].projid")}}><img src='{{asset('images/folder.svg')}} alt='' srcset=''></a>";
                                 var aLink = '<a href={{route("project-show",'+msg+')}}><img src="{{asset("images/folder.svg")}} alt="" srcset=""></a>';
                                 
                                 let data = `
                                     <tr>
                                         <td>${t}</td>
-                                        <td>${message[i].projname}</td>
+                                        <td>${message[p].projname}</td>
                                         <td>${sector}</td>
-                                        <td>${message[i].projcost}</td>
+                                        <td>${message[p].projcost}</td>
                                         <td>${financialYear}</td>
                                         <td>${status}</td>
                                         <td>
                                             <div class="d-flex gap-3">
-                                                ${message[i].link}
-                                                ${message[i].link}
+                                                ${message[p].link}
+                                                ${message[p].link2}
                                             </div>
                                         </td>
                                     </tr>
                                 `;
+                                console.log(data);
                                 $('#proj-table').append(data);   
                                 t++;                     
                             }
+                            table = $('#dataTableExample').DataTable({
+                            "aLengthMenu": [
+                                [10, 30, 50, -1],
+                                [10, 30, 50, "All"]
+                            ],
+                            "iDisplayLength": 10,
+                            "language": {
+                                search: ""
+                            }
+                            });
+                        $('#dataTableExample').each(function() {
+                            var datatable = $(this);
+                            // SEARCH - Add the placeholder for Search and Turn this into in-line form control
+                            var search_input = datatable.closest('.dataTables_wrapper').find('div[id$=_filter] input');
+                            search_input.attr('placeholder', 'Search');
+                            search_input.removeClass('form-control-sm');
+                            // LENGTH - Inline-Form control
+                            var length_sel = datatable.closest('.dataTables_wrapper').find('div[id$=_length] select');
+                            length_sel.removeClass('form-control-sm');
+                        });
                         }
                     })
                 }

@@ -11,6 +11,9 @@
         <title>NobleUI - Laravel Admin Dashboard Template</title>
 
         <!-- Fonts -->
+        <script src="https://kit.fontawesome.com/6557f5a19c.js" crossorigin="anonymous"></script>
+
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -29,6 +32,16 @@
             .page-wrapper {
                 background-image: url("{{asset('images/flag1.png')}}") !important;
             }
+            .legal {
+                bottom: 0;
+                width: 100%;
+                background-color: #03A9F4;
+                border-top: 1px solid #eee;
+                padding: 5px;
+                overflow: hidden;
+                color: black;
+                display: flex;
+            }
         </style>
       </head>
     <body class="antialiased">
@@ -38,7 +51,16 @@
             <div class="page-wrapper">
               @include('layouts.header')
               <div class="page-content">
+               
                 @include('projects.projects_components.show_data')
+              </div>
+              <div class="legal">
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 copyright">
+                    ProjTrac M&amp;E - Your Best Result-Based Monitoring &amp; Evaluation System.
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 version" align="right">
+                    Copyright @ 2017 -2024. ProjTrac Systems Ltd.
+                </div>
               </div>
             </div>
         </div>

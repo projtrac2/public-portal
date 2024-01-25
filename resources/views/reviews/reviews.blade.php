@@ -29,6 +29,16 @@
             .page-wrapper {
                 
             }
+            .legal {
+                bottom: 0;
+                width: 100%;
+                background-color: #03A9F4;
+                border-top: 1px solid #eee;
+                padding: 5px;
+                overflow: hidden;
+                color: black;
+                display: flex;
+            }
         </style>
         <script src="https://kit.fontawesome.com/6557f5a19c.js" crossorigin="anonymous"></script>
     </head>
@@ -40,6 +50,7 @@
               @include('layouts.header')
               <div class="page-content">
                 <div class="container">
+                    <div id="success_msg"></div>
                     @if ($errors->any())
                         <div class="alert alert-danger">
                             <ul>
@@ -51,6 +62,10 @@
                     @endif
 
                     <div class="row">
+                        <div class="d-flex justify-content-end">
+
+                            <a href="{{$back_route}}"><button class="btn btn-warning">Back</button></a>
+                        </div>
                         <div class="col-md-6 p-5 text-center">
                             <img src="{{asset('images/rev2.svg')}}" alt="review" style="height: 40vh;"  srcset="">
                             <div class="pt-4 text-center">
@@ -68,9 +83,9 @@
                             
                         </div>
                         <div class="col-md-6 pt-4">
-                            <form class="forms-sample" method="POST" action="{{route('save-feedback')}}">
+                            <form class="forms-sample" method="POST" action="">
                                 @csrf
-                                <input type="hidden" name="project_id" value="{{$project->projid}}">
+                                <input type="hidden" name="project_id" value="{{$project->projid}}" id="project_id">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
@@ -135,6 +150,14 @@
                 </div>
                 
               </div>
+              <div class="legal">
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 copyright">
+                    ProjTrac M&amp;E - Your Best Result-Based Monitoring &amp; Evaluation System.
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 version" align="right">
+                    Copyright @ 2017 -2024. ProjTrac Systems Ltd.
+                </div>
+              </div>
             </div>
         </div>
 
@@ -157,6 +180,7 @@
     <script>
         $(function() {
             $('#submit-btn').on('click', function(e) {
+                e.preventDefault();
                 if (!$('#full_name').val()) {
                     $('#full_name_error').text('field required');
                     e.preventDefault();
@@ -198,6 +222,40 @@
                 } else {
                     $('#message_error').text('');
                 }
+
+                let data = new FormData();
+                data.append('full_name', $('#full_name').val());
+                data.append('email_address',$('#email_address').val());
+                data.append('phone_number',$('#phone_number').val());
+                data.append('feedback_type', $('#feedback_type').find(':selected').text());
+                data.append('message', $('#message').val());
+                data.append('project_id', $('#project_id').val());
+
+                $.ajax({
+                    type: "POST",
+                    url: "/api/feedback/add",
+                    processData: false,
+                    contentType: false,
+                    cache: false,
+                    data: data,
+                    error: function(error){
+                        // show msg that field is required
+                        console.log(error);
+                    },
+                    success: function (response) {
+                        if (response) {
+                            let msg = `
+                            <div class="alert alert-success" role="alert" id="success">
+                                    Thank you for your feedback
+                                </div> 
+                            `;
+                            $('#success_msg').append(msg)
+                            setTimeout(() => {
+                                document.location.href = '/view-projects';
+                            }, 1000);
+                        }
+                    }
+                });
             })
         })
     </script>

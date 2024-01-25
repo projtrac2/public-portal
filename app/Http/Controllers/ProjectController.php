@@ -55,7 +55,7 @@ class ProjectController extends Controller
                 $numOfCancelled += 1;
             }
         }
-        return view('welcome', compact('subCounties', 'fYears', 'numOfProjects', 'numOfCompleted', 'numOfOnTrack', 'numOfPendingCompletion', 'numOfBehindSchedule', 'numOfAwaitingProcurement', 'numOfOnHold', 'numOfCancelled'));
+        return view('welcome');
     }
     /**
      * Display a listing of the resource.
@@ -64,16 +64,7 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $subCounties = Location::where('parent', '=', null)->get();
-        $fYears = FinancialYear::all();
-        //$programs = Program::with('projects')->where([['projstatus','!=', 1], ['projstatus', '!=', 2]])->get();
-        $projects = Project::with('program')->where([['projstatus','>', 0], ['projstatus', '!=', 3]])->get();
-        // foreach($projects as $project){
-        //     $department = $project->program->section;
-        //     $year = $project->financialYear->name;
-        //     $status = $project->status;
-        // }
-        return view('projects.view', compact('subCounties', 'fYears','projects'));
+        return view('projects.view');
     }
 
     public function filterProject(Request $request)  
@@ -194,16 +185,27 @@ class ProjectController extends Controller
         if (!$project) {
            return redirect()->back()->with('error', 'Project details not found');
         }
+        
         return view('projects.show', compact('project'));
     }
 
     /**
      * 
      */
-    public function getFeedback ($id) 
+    public function getFeedback (Request $request,$id) 
     {
         $project = Project::find($id);
-        return view('reviews.reviews', compact('project'));
+        $back_url = $request->server->getParams()['HTTP_REFERER'];
+        $back_route = explode('/', $back_url);
+        if (isset($back_route[3]) && isset($back_route[4]) ) {
+            $back_route = '/' . $back_route[3] . '/' . $back_route[4];
+        }
+
+        if (isset($back_route[3]) && !isset($back_route[4])) {
+            $back_route = '/' . $back_route[3];
+        }
+        
+        return view('reviews.reviews', compact('project', 'back_route'));
     }
 
     /**

@@ -9,8 +9,12 @@
         <meta name="keywords" content="nobleui, bootstrap, bootstrap 5, bootstrap5, admin, dashboard, template, responsive, css, sass, html, laravel, theme, front-end, ui kit, web">
 
         <title>NobleUI - Laravel Admin Dashboard Template</title>
-
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+        rel="stylesheet">
         <!-- Fonts -->
+        <script src="https://kit.fontawesome.com/6557f5a19c.js" crossorigin="anonymous"></script>
+
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -27,6 +31,16 @@
         <style>
             .page-wrapper {
                 background-image: url("{{asset('images/flag1.png')}}") !important;
+            }
+            .legal {
+                bottom: 0;
+                width: 100%;
+                background-color: #03A9F4;
+                border-top: 1px solid #eee;
+                padding: 5px;
+                overflow: hidden;
+                color: black;
+                display: flex;
             }
         </style>
     </head>
@@ -49,10 +63,17 @@
                         {{Session::get('unsuccess')}}
                     </div> 
                 @endif
-            
                 @include('welcome_components.search_area')
                 @include('welcome_components.blocks')
                 @include('welcome_components.budget_chart')
+              </div>
+              <div class="legal">
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 copyright">
+                    ProjTrac M&amp;E - Your Best Result-Based Monitoring &amp; Evaluation System.
+                </div>
+                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 version" align="right">
+                    Copyright @ 2017 -2024. ProjTrac Systems Ltd.
+                </div>
               </div>
             </div>
         </div>
@@ -181,7 +202,9 @@
         $(function() {
           'use strict';
         
-        
+          $('#reset-btn').on('click', () => {
+            location.reload();
+          });
           var colors = {
             primary        : "#6571ff",
             secondary      : "#7987a1",
@@ -283,25 +306,74 @@
             }
             });
         }
+
+
+        $.ajax({
+            type: "GET",
+            url: "/api/projects",
+            processData: false,
+            contentType: false,
+            cache: false,
+            error: function(data){
+                console.log(data);
+            },
+            success: function (response) {
+                console.log(response);
+                $('#numOfProjects').text(response.num_of_projects);
+                $('#numOfCompleted').text(response.num_completed);
+                $('#numOfOnTrack').text(response.num_on_track);
+                $('#numOfPendingCompletion').text(response.num_pending_completion);
+                $('#numOfBehindSchedule').text(response.num_behind_schedule);
+                $('#numOfAwaitingProcurement').text(response.num_awaiting_procurement);
+                $('#numOfOnHold').text(response.num_on_hold);
+                $('#numOfCancelled').text(response.num_cancelled);
+            }
+        });
+
+        $.ajax({
+            type: "GET",
+            url: "/api/sub-counties-financial-years",
+            processData: false,
+            contentType: false,
+            cache: false,
+            error: function(data){
+                console.log(data);
+            },
+            success: function (response) {
+                for (let i = 0; i < response.fYears.length; i++) {
+                    let option = `
+                        <option value="${response.fYears[i].id}">${response.fYears[i].year}</option>
+                    `;
+                    $('#from').append(option);
+                    $('#to').append(option);
+                }
+
+                for (let i = 0; i < response.subCounties.length; i++) {
+                    let option = `
+                        <option value="${response.subCounties[i].id}">${response.subCounties[i].state}</option>
+                    `;
+                    $('#subCounty').append(option);
+                }
+            }
+        });
+
+        
+
+
         $('#subCounty').on('change', getWards);
         function getWards() {
             let subCountyId = $('.subCounty').find(":selected").val();
             console.log(subCountyId);
-            let data = new FormData();
-            data.append('_token', '{{csrf_token()}}');
-            data.append('sub_county_id', subCountyId);
             $.ajax({
-                type: "POST",
-                url: "{{route('get-wards')}}",
+                type: "GET",
+                url: "/api/get-wards/"+subCountyId,
                 processData: false,
                 contentType: false,
                 cache: false,
-                data: data,
                 error: function(data){
                     console.log(data);
                 },
                 success: function (message) {
-                    console.log(message);
                     $('#ward').children().remove();
                     $('#ward').append('<option>Select...</option>');
                     for (let i = 0; i < message.length; i++) {
@@ -312,7 +384,12 @@
             });
         }
 
-        $('#filter-btn').on('click',getQueryData);
+        //$('#filter-btn').on('click',getQueryData);
+        
+        $('#from').on('change', getQueryData);
+        $('#to').on('change', getQueryData);
+        $('#subCounty').on('change', getQueryData);
+        $('#ward').on('change', getQueryData);
         function getQueryData() {
             let subCountyId = $('.subCounty').find(":selected").val();
             let wardId = $('#ward').find(":selected").val();
@@ -325,9 +402,10 @@
             data.append('ward_id', wardId);
             data.append('from', from);
             data.append('to', to);
+
             $.ajax({
                 type: "POST",
-                url: "{{route('get_query')}}",
+                url: "/api/projects/filter",
                 processData: false,
                 contentType: false,
                 cache: false,
@@ -335,16 +413,16 @@
                 error: function(data){
                     console.log(data);
                 },
-                success: function (message) {
-                    console.log(message);
-                    $('#numOfProjects').text(message[0]);
-                    $('#numOfCompleted').text(message[1]);
-                    $('#numOfOnTrack').text(message[2]);
-                    $('#numOfPendingCompletion').text(message[3]);
-                    $('#numOfBehindSchedule').text(message[4]);
-                    $('#numOfAwaitingProcurement').text(message[5]);
-                    $('#numOfOnHold').text(message[6]);
-                    $('#numOfCancelled').text(message[7]);
+                success: function (response) {
+                    console.log(response);
+                    $('#numOfProjects').text(response.num_of_projects);
+                    $('#numOfCompleted').text(response.num_completed);
+                    $('#numOfOnTrack').text(response.num_on_track);
+                    $('#numOfPendingCompletion').text(response.num_pending_completion);
+                    $('#numOfBehindSchedule').text(response.num_behind_schedule);
+                    $('#numOfAwaitingProcurement').text(response.num_awaiting_procurement);
+                    $('#numOfOnHold').text(response.num_on_hold);
+                    $('#numOfCancelled').text(response.num_cancelled);
                 }
             });
         }

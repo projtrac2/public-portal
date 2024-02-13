@@ -9,9 +9,7 @@
                             <tr>
                                 <th style="color: black">#</th>
                                 <th style="color: black">Project Name</th>
-                                <th style="color: black">Department</th>
-                                <th style="color: black">Cost</th>
-                                <th style="color: black">Year</th>
+                                <th style="color: black">Location</th>
                                 <th style="color: black">Status</th>
                                 <th style="color: black">Actions</th>
                             </tr>

@@ -40,3 +40,17 @@ Route::post('/all-projects/filter', [ProjectController::class, 'filter']);
  * feedback
  */
 Route::post('/feedback/add', [ProjectController::class, 'saveFeedBack']);
+
+/**
+ * chart data
+ */
+Route::get('/chart-data-one', [ProjectController::class, 'projectDistributionPerSubCounty']);
+Route::post('/chart-data-one/query', [ProjectController::class, 'projectDistributionPerSubCountyQuery']);
+Route::get('/chart-data-two', [ProjectController::class, 'budgetAllocationPerFinancialYear']);
+Route::post('/chart-data-two/query', [ProjectController::class, 'budgetAllocationPerFinancialYearQuery']);
+Route::get('/chart-data-three', [ProjectController::class, 'budgetAllocationPerDept']);
+Route::post('/chart-data-three/query', [ProjectController::class, 'budgetAllocationPerDeptQuery']);
+
+Route::get('/output-targets/{id}', [ProjectController::class, 'outputTarget'])->name('output_targets');
+
+Route::get('/date-distribution', [ProjectController::class, 'yearDistribution']);

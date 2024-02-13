@@ -1,3 +1,10 @@
+<style>
+  .navbar-nav {
+    background: #03A9F4 !important;
+    padding-left: 10px;
+  }
+</style>
+
 <nav class="navbar navbar-expand-lg" style="background-color: #03A9F4 !important">
   <a class="navbar-brand" href="#">
     <img src="{{asset('images/m-bg.png')}}" alt="logo" height="50">
@@ -14,9 +21,6 @@
       <li class="nav-item">
         <a class="nav-link" href="{{route('projects-view')}}">Projects</a>
       </li>
-      
-      
     </ul>
-    
   </div>
 </nav>

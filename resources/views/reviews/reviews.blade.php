@@ -62,8 +62,11 @@
                     @endif
 
                     <div class="row">
-                        <div class="d-flex justify-content-end">
-
+                        <div class="d-flex justify-content-between">
+                            <div style="width: 100%; text-align:center">
+                                <h4><span>Project name: </span>{{$project->projname}}</h4>
+                                <p style="color: #808080">Give a feedback on this project</p>
+                            </div>
                             <a href="{{$back_route}}"><button class="btn btn-warning">Back</button></a>
                         </div>
                         <div class="col-md-6 p-5 text-center">

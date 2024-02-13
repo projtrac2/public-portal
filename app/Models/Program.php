@@ -18,6 +18,6 @@ class Program extends Model
 
     public function projects()
     {
-        return $this->hasMany(Project::class, 'program_id', 'id');
+        return $this->hasMany(Project::class, 'progid', 'progid')->where([['projstatus','>', 0], ['projstatus', '!=', 3]]);
     }
 }

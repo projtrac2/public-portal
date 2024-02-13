@@ -17,7 +17,7 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
         <!-- End fonts -->
-        
+        <link href="{{ asset('assets/plugins/prismjs/prism.css') }}" rel="stylesheet" />
         <!-- CSRF Token -->
         <meta name="_token" content="{{ csrf_token() }}">
         
@@ -28,6 +28,10 @@
         <link href="{{ asset('assets/plugins/perfect-scrollbar/perfect-scrollbar.css') }}" rel="stylesheet" />
         <link href="{{ asset('assets/plugins/datatables-net-bs5/dataTables.bootstrap5.css') }}" rel="stylesheet" />
         <style>
+            #map {
+                height: 400px; /* The height is 400 pixels */
+                width: 100%; /* The width is the width of the web page */
+            }
             .page-wrapper {
                 background-image: url("{{asset('images/flag1.png')}}") !important;
             }
@@ -67,10 +71,12 @@
    
         <!-- base js -->
         <script src="{{ asset('js/app.js') }}"></script>
+       
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
         <script src="{{ asset('assets/plugins/feather-icons/feather.min.js') }}"></script>
         <script src="{{ asset('assets/plugins/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
         <!-- end base js -->
-
+        
         <!-- common js -->
         <script src="{{ asset('assets/js/template.js') }}"></script>
         <script src="{{ asset('assets/plugins/datatables-net/jquery.dataTables.js') }}"></script>
@@ -78,9 +84,9 @@
         {{-- <script src="{{ asset('assets/js/data-table.js') }}"></script> --}}
         <script async>
             $(function () {
-                $('#reset-btn').on('click', () => {
-                    location.reload();
-                });
+                
+
+
                 let table;
                 $.ajax({
                     type: "GET",
@@ -92,6 +98,7 @@
                         console.log(data);
                     },
                     success: function (message) {
+                       
                         console.log(message);
                         let t = 1;
                         for (let i = 0; i < message.length; i++) {
@@ -103,21 +110,11 @@
                                     status = message[i].status.statusname;
                             }
 
-                            if (message[i].financial_year != null) {
-                                console.log(message[i].status.statusname);
-                                financialYear = message[i].financial_year.year;
-                            } 
-
-                            if (message[i].section != null) {
-                                sector = message[i].section.sector;
-                            } 
                             let data = `
                                 <tr>
                                     <td>${t}</td>
-                                    <td>${message[i].projname}</td>
-                                    <td>${sector}</td>
-                                    <td>${message[i].projcost}</td>
-                                    <td>${financialYear}</td>
+                                    <td data-bs-toggle="tooltip" data-bs-title="Default tooltip">${message[i].projname}</td>
+                                    <td>${message[i].location} - ${message[i].ward}</td>
                                     <td>${status}</td>
                                     <td>
                                         <div class="d-flex gap-3">
@@ -241,33 +238,22 @@
                             for (let p = 0; p < message.length; p++) {
                                 console.log(p);
                                 let status = '';
-                                let financialYear = '';
-                                let sector = '';
+                                
                                 if (message[p].status != null) {
                                     console.log(message[p].status.statusname);
                                      status = message[p].status.statusname;
                                 }
 
-                                if (message[p].financial_year != null) {
-                                    console.log(message[p].status.statusname);
-                                    financialYear = message[p].financial_year.year;
-                                } 
-
-                                if (message[p].section != null) {
-                                    sector = message[p].section.sector;
-                                } 
-
+                            
                                 var msg = message[p].projid;
-                                var link = "<a href={{route('project-show', "message[p].projid")}}><img src='{{asset('images/folder.svg')}} alt='' srcset=''></a>";
+                                var link = "<a href={{route('project-show', "message[p].id")}}><img src='{{asset('images/folder.svg')}} alt='' srcset=''></a>";
                                 var aLink = '<a href={{route("project-show",'+msg+')}}><img src="{{asset("images/folder.svg")}} alt="" srcset=""></a>';
                                 
                                 let data = `
                                     <tr>
                                         <td>${t}</td>
                                         <td>${message[p].projname}</td>
-                                        <td>${sector}</td>
-                                        <td>${message[p].projcost}</td>
-                                        <td>${financialYear}</td>
+                                        <td>${message[p].location} - ${message[p].ward}</td>
                                         <td>${status}</td>
                                         <td>
                                             <div class="d-flex gap-3">
